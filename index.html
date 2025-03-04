@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Factorio Map Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        /* Ensuring square aspect ratio for the preview */
+        .square-container {
+            position: relative;
+            width: 100%;
+            padding-top: 100%; /* This ensures a perfect square */
+        }
+        .square-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white p-6">
+<div class="max-w-5xl mx-auto flex gap-6"
+     x-data="{
+       activeTab: 'resources',
+       seed: '',
+       resources: {
+         'iron ore': { enabled: true, frequency: 50, size: 50, richness: 50 },
+         'copper ore': { enabled: true, frequency: 50, size: 50, richness: 50 },
+         'stone': { enabled: true, frequency: 50, size: 50, richness: 50 },
+         coal: { enabled: true, frequency: 50, size: 50, richness: 50 },
+         'crude oil': { enabled: true, frequency: 50, size: 50, richness: 50 },
+         'uranium ore': { enabled: true, frequency: 50, size: 50, richness: 50 }
+       },
+       terrain: {
+         mapType: 'nauvisElevation',
+         water: { enabled: true, frequency: 50, coverage: 50 },
+         trees: { enabled: true, frequency: 50, coverage: 50 },
+         rocks: { enabled: true, frequency: 50, coverage: 50 },
+         startingAreaMoisture: { enabled: true, frequency: 50, coverage: 50 },
+         cliffs: { enabled: true, frequency: 50, size: 50 },
+         generalMoisture: { scale: 50, bias: 50 },
+         terrainType: { scale: 50, bias: 50 }
+       },
+       enemy: {
+         bases: {
+           frequency: 50,
+           size: 50,
+           startingAreaSize: 50,
+           peacefulMode: false,
+           noEnemies: false
+         },
+         expansion: {
+           maxExpansionDistance: 7,
+           minGroupSize: 5,
+           maxGroupSize: 20,
+           minCoolDown: 2,
+           maxCoolDown: 60
+         },
+         evolution: {
+           timeFactor: 40,
+           destroyFactor: 200,
+           pollutionFactor: 9
+         }
+       },
+       advanced: {
+         map: {
+           width: 1000,
+           height: 1000
+         },
+         technology: {
+           priceMultiplier: 1.0
+         },
+         pollution: {
+           absorptionModifier: 100,
+           attackCostModifier: 100,
+           minToDamageTrees: 10,
+           diffusionRatio: 1.0
+         }
+       }
+     }"
+>
+    <!-- Left Panel -->
+    <div class="w-2/5 bg-gray-800 p-4 rounded-lg shadow-lg">
+        <h2 class="text-lg font-bold mb-3">Factorio Map Generator</h2>
+
+        <!-- Seed Input -->
+        <div class="mb-3">
+            <label class="block text-xs font-medium">Seed:</label>
+            <input
+                    type="text"
+                    x-model="seed"
+                    class="w-full p-1 text-sm rounded bg-gray-700 border border-gray-600"
+            />
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex space-x-1 mb-3 text-xs">
+            <button
+                    @click="activeTab = 'resources'"
+                    :class="activeTab === 'resources' ? 'bg-blue-500' : 'bg-gray-700'"
+                    class="px-2 py-1 rounded"
+            >
+                Resources
+            </button>
+            <button
+                    @click="activeTab = 'terrain'"
+                    :class="activeTab === 'terrain' ? 'bg-blue-500' : 'bg-gray-700'"
+                    class="px-2 py-1 rounded"
+            >
+                Terrain
+            </button>
+            <button
+                    @click="activeTab = 'enemy'"
+                    :class="activeTab === 'enemy' ? 'bg-blue-500' : 'bg-gray-700'"
+                    class="px-2 py-1 rounded"
+            >
+                Enemy
+            </button>
+            <button
+                    @click="activeTab = 'advanced'"
+                    :class="activeTab === 'advanced' ? 'bg-blue-500' : 'bg-gray-700'"
+                    class="px-2 py-1 rounded"
+            >
+                Advanced
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-3 bg-gray-700 rounded">
+            <!-- Resources Tab -->
+            <template x-if="activeTab === 'resources'">
+                <div class="space-y-2">
+                    <template x-for="[key, resource] in Object.entries(resources)" :key="key">
+                        <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                            <!-- Checkbox -->
+                            <input type="checkbox" x-model="resource.enabled" class="w-4 h-4" />
+
+                            <!-- Resource Name -->
+                            <span class="w-20 text-left capitalize" x-text="key"></span>
+
+                            <!-- Frequency Slider -->
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Frequency</label>
+                                <input type="range" x-model="resource.frequency" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="resource.frequency"></span>
+                            </div>
+
+                            <!-- Size Slider -->
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Size</label>
+                                <input type="range" x-model="resource.size" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="resource.size"></span>
+                            </div>
+
+                            <!-- Richness Slider -->
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Richness</label>
+                                <input type="range" x-model="resource.richness" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="resource.richness"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Terrain Tab -->
+            <template x-if="activeTab === 'terrain'">
+                <div class="space-y-3">
+                    <!-- Map Type (Dropdown) -->
+                    <div>
+                        <label class="block text-xs font-medium mb-1">Map Type</label>
+                        <select
+                                x-model="terrain.mapType"
+                                class="w-full p-1 text-sm rounded bg-gray-700 border border-gray-600"
+                        >
+                            <option value="nauvisElevation">Nauvis Elevation (Default)</option>
+                            <option value="lakesElevation">Lakes Elevation</option>
+                            <option value="islandElevation">Island Elevation</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-gray-800 p-2 rounded text-xs">
+                        <!-- Water -->
+                        <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                            <input type="checkbox" x-model="terrain.water.enabled" class="w-4 h-4" />
+                            <span class="w-20 text-left">Water</span>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Frequency</label>
+                                <input type="range" x-model="terrain.water.frequency" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.water.frequency"></span>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Coverage</label>
+                                <input type="range" x-model="terrain.water.coverage" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.water.coverage"></span>
+                            </div>
+                        </div>
+                        <!-- Trees -->
+                        <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                            <input type="checkbox" x-model="terrain.trees.enabled" class="w-4 h-4" />
+                            <span class="w-20 text-left">Trees</span>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Frequency</label>
+                                <input type="range" x-model="terrain.trees.frequency" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.trees.frequency"></span>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Coverage</label>
+                                <input type="range" x-model="terrain.trees.coverage" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.trees.coverage"></span>
+                            </div>
+                        </div>
+                        <!-- Rocks -->
+                        <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                            <input type="checkbox" x-model="terrain.rocks.enabled" class="w-4 h-4" />
+                            <span class="w-20 text-left">Rocks</span>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Frequency</label>
+                                <input type="range" x-model="terrain.rocks.frequency" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.rocks.frequency"></span>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Coverage</label>
+                                <input type="range" x-model="terrain.rocks.coverage" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.rocks.coverage"></span>
+                            </div>
+                        </div>
+
+                        <!-- Starting Area Moisture-->
+                        <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                            <input type="checkbox" x-model="terrain.startingAreaMoisture.enabled" class="w-4 h-4" />
+                            <span class="w-20 text-left">Starting Area Moisture</span>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Frequency</label>
+                                <input type="range" x-model="terrain.startingAreaMoisture.frequency" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.startingAreaMoisture.frequency"></span>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Coverage</label>
+                                <input type="range" x-model="terrain.startingAreaMoisture.coverage" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.startingAreaMoisture.coverage"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 p-2 rounded text-xs">
+                        <!-- Cliffs -->
+                        <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                            <input type="checkbox" x-model="terrain.cliffs.enabled" class="w-4 h-4" />
+                            <span class="w-20 text-left">Cliffs</span>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Frequency</label>
+                                <input type="range" x-model="terrain.cliffs.frequency" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.cliffs.frequency"></span>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Size</label>
+                                <input type="range" x-model="terrain.cliffs.size" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.cliffs.size"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 p-2 rounded text-xs">
+                        <!-- General Moisture -->
+                        <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                            <span class="w-20 text-left">Moisture</span>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Scale</label>
+                                <input type="range" x-model="terrain.generalMoisture.scale" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.generalMoisture.scale"></span>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Bias</label>
+                                <input type="range" x-model="terrain.generalMoisture.bias" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.generalMoisture.bias"></span>
+                            </div>
+                        </div>
+
+                        <!-- Terrain Type -->
+                        <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                            <span class="w-20 text-left">Terrain Type</span>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Scale</label>
+                                <input type="range" x-model="terrain.terrainType.scale" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.terrainType.scale"></span>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-gray-400 text-[10px]">Bias</label>
+                                <input type="range" x-model="terrain.terrainType.bias" min="0" max="100" class="w-full" />
+                                <span class="text-gray-400 text-[10px]" x-text="terrain.terrainType.bias"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Enemy Tab -->
+            <template x-if="activeTab === 'enemy'">
+                <div class="space-y-3">
+                    <!-- Enemy Bases -->
+                    <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                        <span class="w-20 text-left">Enemy Bases</span>
+                        <div class="flex-1">
+                            <label class="block text-gray-400 text-[10px]">Frequency</label>
+                            <input type="range" x-model="enemy.bases.frequency" min="0" max="100" class="w-full" />
+                            <span class="text-gray-400 text-[10px]" x-text="enemy.bases.frequency"></span>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-gray-400 text-[10px]">Size</label>
+                            <input type="range" x-model="enemy.bases.size" min="0" max="100" class="w-full" />
+                            <span class="text-gray-400 text-[10px]" x-text="enemy.bases.size"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                        <div class="flex-1">
+                            <label class="text-gray-400 text-[10px]">No enemies</label>
+                            <input type="checkbox" x-model="enemy.bases.noEnemies" class="w-4 h-4" />
+                        </div>
+                        <div class="flex-1">
+                            <label class="text-gray-400 text-[10px]">Peaceful Mode</label>
+                            <input type="checkbox" x-model="enemy.bases.peacefulMode" class="w-4 h-4" />
+                        </div>
+                    </div>
+
+                    <!-- Initial Zone Size -->
+                    <div class="flex items-center space-x-2 bg-gray-800 p-2 rounded text-xs">
+                        <span class="w-20 text-left">Starting Area Size</span>
+                        <div class="flex-1">
+                            <label class="block text-gray-400 text-[10px]">Size</label>
+                            <input type="range" x-model="enemy.bases.startingAreaSize" min="0" max="100" class="w-full" />
+                            <span class="text-gray-400 text-[10px]" x-text="enemy.bases.startingAreaSize"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- Enemy Expansion -->
+                    <div class="bg-gray-800 p-2 rounded text-xs">
+                        <h4 class="font-bold mb-2 text-sm">Enemy Expansion</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <!-- Maximum Expansion distance -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Maximum Expansion Distance</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="enemy.expansion.maxExpansionDistance"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.maxExpansionDistance"></span>
+                            </div>
+                            <!-- Minimum Group Size -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Minimum Group Size</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="enemy.expansion.minGroupSize"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.minGroupSize"></span>
+                            </div>
+                            <!-- Maximum Group Size -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Maximum Group Size</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="enemy.expansion.maxGroupSize"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.maxGroupSize"></span>
+                            </div>
+                            <!-- Minimum Cooldown -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Minimum Cooldown</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="enemy.expansion.minCoolDown"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.minCoolDown + ' min'"></span>
+                            </div>
+                            <!-- Maximum Cooldown -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Maximum Cooldown</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="enemy.expansion.maxCoolDown"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.maxCoolDown + ' min'"></span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Evolution -->
+                    <div class="bg-gray-800 p-2 rounded text-xs">
+                        <h4 class="font-bold mb-2 text-sm">Evolution</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <!-- Time Factor -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Time Factor</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="enemy.evolution.timeFactor"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="enemy.evolution.timeFactor"></span>
+                            </div>
+                            <!-- Destroy Factor -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Destroy Factor</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="enemy.evolution.destroyFactor"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="enemy.evolution.destroyFactor"></span>
+                            </div>
+                            <!-- Pollution Factor -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Pollution Factor</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="enemy.evolution.pollutionFactor"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="enemy.evolution.pollutionFactor"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Advanced Tab -->
+            <template x-if="activeTab === 'advanced'">
+                <div class="space-y-3">
+                    <!-- Map -->
+                    <div class="bg-gray-800 p-2 rounded text-xs">
+                        <h4 class="font-bold mb-2 text-sm">Map</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Width</label>
+                                <input
+                                        type="number"
+                                        x-model="advanced.map.width"
+                                        class="w-full p-1 bg-gray-700 border border-gray-600 rounded"
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Height</label>
+                                <input
+                                        type="number"
+                                        x-model="advanced.map.height"
+                                        class="w-full p-1 bg-gray-700 border border-gray-600 rounded"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technology -->
+                    <div class="bg-gray-800 p-2 rounded text-xs">
+                        <h4 class="font-bold mb-2 text-sm">Technology</h4>
+                        <div>
+                            <label class="block text-gray-400 text-[10px]">Price multiplier</label>
+                            <input
+                                    type="number"
+                                    step="0.1"
+                                    x-model="advanced.technology.priceMultiplier"
+                                    class="w-full p-1 bg-gray-700 border border-gray-600 rounded"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Pollution -->
+                    <div class="bg-gray-800 p-2 rounded text-xs">
+                        <h4 class="font-bold mb-2 text-sm">Pollution</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <!-- Absorption modifier -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Absorption modifier</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="advanced.pollution.absorptionModifier"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.absorptionModifier + '%'"></span>
+                            </div>
+                            <!-- Attack cost modifier -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Attack cost modifier</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="advanced.pollution.attackCostModifier"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.attackCostModifier + '%'"></span>
+                            </div>
+                            <!-- Minimum to damage trees -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Min. to Damage Trees</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="advanced.pollution.minToDamageTrees"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.minToDamageTrees"></span>
+                            </div>
+                            <!-- Absorbed per damaged tree -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Absorbed per damaged trees</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="advanced.pollution.absorbedPerDamagedTrees"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.absorbedPerDamagedTrees"></span>
+                            </div>
+                            <!-- Diffusion rate -->
+                            <div>
+                                <label class="block text-gray-400 text-[10px]">Diffusion Ratio</label>
+                                <!-- Example slider 0-200% -->
+                                <input
+                                        type="range"
+                                        x-model="advanced.pollution.diffusionRatio"
+                                        min="0"
+                                        max="200"
+                                        class="w-full"
+                                />
+                                <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.diffusionRatio"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Generate Button -->
+        <button
+                class="w-full bg-green-600 mt-3 p-2 text-xs rounded"
+                @click="
+        console.log({
+          seed,
+          resources,
+          terrain,
+          enemy,
+          advanced
+        })
+      "
+        >
+            Generate Map
+        </button>
+    </div>
+
+    <!-- Right Panel (Map Preview) -->
+    <div class="w-3/5 bg-gray-800 p-3 rounded-lg shadow-lg flex flex-col">
+        <h3 class="text-sm font-bold mb-2">Map Preview</h3>
+        <!-- Square container for the preview -->
+        <div class="square-container">
+            <div class="square-content bg-gray-700 flex items-center justify-center text-xs">
+                <span class="text-gray-400">Map will appear here</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
