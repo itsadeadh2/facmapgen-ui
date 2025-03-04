@@ -28,28 +28,28 @@
        activeTab: 'resources',
        seed: '',
        resources: {
-         'iron ore': { enabled: true, frequency: 50, size: 50, richness: 50 },
-         'copper ore': { enabled: true, frequency: 50, size: 50, richness: 50 },
-         'stone': { enabled: true, frequency: 50, size: 50, richness: 50 },
-         coal: { enabled: true, frequency: 50, size: 50, richness: 50 },
-         'crude oil': { enabled: true, frequency: 50, size: 50, richness: 50 },
-         'uranium ore': { enabled: true, frequency: 50, size: 50, richness: 50 }
+         'iron ore': { enabled: true, frequency: 100, size: 100, richness: 100 },
+         'copper ore': { enabled: true, frequency: 100, size: 100, richness: 100 },
+         'stone': { enabled: true, frequency: 100, size: 100, richness: 100 },
+         coal: { enabled: true, frequency: 100, size: 100, richness: 100 },
+         'crude oil': { enabled: true, frequency: 100, size: 100, richness: 100 },
+         'uranium ore': { enabled: true, frequency: 100, size: 100, richness: 100 }
        },
        terrain: {
          mapType: 'nauvisElevation',
-         water: { enabled: true, frequency: 50, coverage: 50 },
-         trees: { enabled: true, frequency: 50, coverage: 50 },
-         rocks: { enabled: true, frequency: 50, coverage: 50 },
-         startingAreaMoisture: { enabled: true, frequency: 50, coverage: 50 },
-         cliffs: { enabled: true, frequency: 50, size: 50 },
-         generalMoisture: { scale: 50, bias: 50 },
-         terrainType: { scale: 50, bias: 50 }
+         water: { enabled: true, frequency: 100, coverage: 100 },
+         trees: { enabled: true, frequency: 100, coverage: 100 },
+         rocks: { enabled: true, frequency: 100, coverage: 100 },
+         startingAreaMoisture: { enabled: true, frequency: 100, coverage: 100 },
+         cliffs: { enabled: true, frequency: 100, size: 100 },
+         generalMoisture: { scale: 100, bias: 0 },
+         terrainType: { scale: 100, bias: 0 }
        },
        enemy: {
          bases: {
-           frequency: 50,
-           size: 50,
-           startingAreaSize: 50,
+           frequency: 100,
+           size: 100,
+           startingAreaSize: 100,
            peacefulMode: false,
            noEnemies: false
          },
@@ -57,7 +57,7 @@
            maxExpansionDistance: 7,
            minGroupSize: 5,
            maxGroupSize: 20,
-           minCoolDown: 2,
+           minCoolDown: 4,
            maxCoolDown: 60
          },
          evolution: {
@@ -68,17 +68,18 @@
        },
        advanced: {
          map: {
-           width: 1000,
-           height: 1000
+           width: undefined,
+           height: undefined
          },
          technology: {
-           priceMultiplier: 1.0
+           priceMultiplier: 1
          },
          pollution: {
            absorptionModifier: 100,
            attackCostModifier: 100,
-           minToDamageTrees: 10,
-           diffusionRatio: 1.0
+           minToDamageTrees: 60,
+           absorbedPerDamagedTrees: 10,
+           diffusionRatio: 2
          }
        }
      }"
@@ -145,21 +146,21 @@
                             <!-- Frequency Slider -->
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Frequency</label>
-                                <input type="range" x-model="resource.frequency" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="resource.frequency" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="resource.frequency"></span>
                             </div>
 
                             <!-- Size Slider -->
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Size</label>
-                                <input type="range" x-model="resource.size" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="resource.size" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="resource.size"></span>
                             </div>
 
                             <!-- Richness Slider -->
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Richness</label>
-                                <input type="range" x-model="resource.richness" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="resource.richness" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="resource.richness"></span>
                             </div>
                         </div>
@@ -190,12 +191,12 @@
                             <span class="w-20 text-left">Water</span>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Frequency</label>
-                                <input type="range" x-model="terrain.water.frequency" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.water.frequency" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.water.frequency"></span>
                             </div>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Coverage</label>
-                                <input type="range" x-model="terrain.water.coverage" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.water.coverage" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.water.coverage"></span>
                             </div>
                         </div>
@@ -205,12 +206,12 @@
                             <span class="w-20 text-left">Trees</span>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Frequency</label>
-                                <input type="range" x-model="terrain.trees.frequency" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.trees.frequency" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.trees.frequency"></span>
                             </div>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Coverage</label>
-                                <input type="range" x-model="terrain.trees.coverage" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.trees.coverage" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.trees.coverage"></span>
                             </div>
                         </div>
@@ -220,12 +221,12 @@
                             <span class="w-20 text-left">Rocks</span>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Frequency</label>
-                                <input type="range" x-model="terrain.rocks.frequency" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.rocks.frequency" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.rocks.frequency"></span>
                             </div>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Coverage</label>
-                                <input type="range" x-model="terrain.rocks.coverage" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.rocks.coverage" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.rocks.coverage"></span>
                             </div>
                         </div>
@@ -236,12 +237,12 @@
                             <span class="w-20 text-left">Starting Area Moisture</span>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Frequency</label>
-                                <input type="range" x-model="terrain.startingAreaMoisture.frequency" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.startingAreaMoisture.frequency" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.startingAreaMoisture.frequency"></span>
                             </div>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Coverage</label>
-                                <input type="range" x-model="terrain.startingAreaMoisture.coverage" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.startingAreaMoisture.coverage" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.startingAreaMoisture.coverage"></span>
                             </div>
                         </div>
@@ -254,12 +255,12 @@
                             <span class="w-20 text-left">Cliffs</span>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Frequency</label>
-                                <input type="range" x-model="terrain.cliffs.frequency" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.cliffs.frequency" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.cliffs.frequency"></span>
                             </div>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Size</label>
-                                <input type="range" x-model="terrain.cliffs.size" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.cliffs.size" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.cliffs.size"></span>
                             </div>
                         </div>
@@ -270,12 +271,12 @@
                             <span class="w-20 text-left">Moisture</span>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Scale</label>
-                                <input type="range" x-model="terrain.generalMoisture.scale" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.generalMoisture.scale" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.generalMoisture.scale"></span>
                             </div>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Bias</label>
-                                <input type="range" x-model="terrain.generalMoisture.bias" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.generalMoisture.bias" min="-.5" max=".5" step=".05" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.generalMoisture.bias"></span>
                             </div>
                         </div>
@@ -285,12 +286,12 @@
                             <span class="w-20 text-left">Terrain Type</span>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Scale</label>
-                                <input type="range" x-model="terrain.terrainType.scale" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.terrainType.scale" min="17" max="600" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.terrainType.scale"></span>
                             </div>
                             <div class="flex-1">
                                 <label class="block text-gray-400 text-[10px]">Bias</label>
-                                <input type="range" x-model="terrain.terrainType.bias" min="0" max="100" class="w-full" />
+                                <input type="range" x-model="terrain.terrainType.bias" min="-.5" max=".5" step=".05" class="w-full" />
                                 <span class="text-gray-400 text-[10px]" x-text="terrain.terrainType.bias"></span>
                             </div>
                         </div>
@@ -306,12 +307,12 @@
                         <span class="w-20 text-left">Enemy Bases</span>
                         <div class="flex-1">
                             <label class="block text-gray-400 text-[10px]">Frequency</label>
-                            <input type="range" x-model="enemy.bases.frequency" min="0" max="100" class="w-full" />
+                            <input type="range" x-model="enemy.bases.frequency" min="17" max="600" class="w-full" />
                             <span class="text-gray-400 text-[10px]" x-text="enemy.bases.frequency"></span>
                         </div>
                         <div class="flex-1">
                             <label class="block text-gray-400 text-[10px]">Size</label>
-                            <input type="range" x-model="enemy.bases.size" min="0" max="100" class="w-full" />
+                            <input type="range" x-model="enemy.bases.size" min="17" max="600" class="w-full" />
                             <span class="text-gray-400 text-[10px]" x-text="enemy.bases.size"></span>
                         </div>
                     </div>
@@ -332,7 +333,7 @@
                         <span class="w-20 text-left">Starting Area Size</span>
                         <div class="flex-1">
                             <label class="block text-gray-400 text-[10px]">Size</label>
-                            <input type="range" x-model="enemy.bases.startingAreaSize" min="0" max="100" class="w-full" />
+                            <input type="range" x-model="enemy.bases.startingAreaSize" min="17" max="600" class="w-full" />
                             <span class="text-gray-400 text-[10px]" x-text="enemy.bases.startingAreaSize"></span>
                         </div>
 
@@ -349,8 +350,8 @@
                                 <input
                                         type="range"
                                         x-model="enemy.expansion.maxExpansionDistance"
-                                        min="0"
-                                        max="200"
+                                        min="2"
+                                        max="20"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.maxExpansionDistance"></span>
@@ -362,8 +363,8 @@
                                 <input
                                         type="range"
                                         x-model="enemy.expansion.minGroupSize"
-                                        min="0"
-                                        max="200"
+                                        min="1"
+                                        max="20"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.minGroupSize"></span>
@@ -375,8 +376,8 @@
                                 <input
                                         type="range"
                                         x-model="enemy.expansion.maxGroupSize"
-                                        min="0"
-                                        max="200"
+                                        min="1"
+                                        max="20"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.maxGroupSize"></span>
@@ -388,8 +389,8 @@
                                 <input
                                         type="range"
                                         x-model="enemy.expansion.minCoolDown"
-                                        min="0"
-                                        max="200"
+                                        min="1"
+                                        max="60"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.minCoolDown + ' min'"></span>
@@ -401,8 +402,8 @@
                                 <input
                                         type="range"
                                         x-model="enemy.expansion.maxCoolDown"
-                                        min="0"
-                                        max="200"
+                                        min="5"
+                                        max="180"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="enemy.expansion.maxCoolDown + ' min'"></span>
@@ -423,7 +424,7 @@
                                         type="range"
                                         x-model="enemy.evolution.timeFactor"
                                         min="0"
-                                        max="200"
+                                        max="1000"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="enemy.evolution.timeFactor"></span>
@@ -436,7 +437,7 @@
                                         type="range"
                                         x-model="enemy.evolution.destroyFactor"
                                         min="0"
-                                        max="200"
+                                        max="1000"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="enemy.evolution.destroyFactor"></span>
@@ -449,7 +450,7 @@
                                         type="range"
                                         x-model="enemy.evolution.pollutionFactor"
                                         min="0"
-                                        max="200"
+                                        max="1000"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="enemy.evolution.pollutionFactor"></span>
@@ -467,6 +468,7 @@
                         <h4 class="font-bold mb-2 text-sm">Map</h4>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
+                                <!-- max 20000000-->
                                 <label class="block text-gray-400 text-[10px]">Width</label>
                                 <input
                                         type="number"
@@ -475,6 +477,7 @@
                                 />
                             </div>
                             <div>
+                                <!-- max 20000000-->
                                 <label class="block text-gray-400 text-[10px]">Height</label>
                                 <input
                                         type="number"
@@ -510,8 +513,8 @@
                                 <input
                                         type="range"
                                         x-model="advanced.pollution.absorptionModifier"
-                                        min="0"
-                                        max="200"
+                                        min="10"
+                                        max="400"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.absorptionModifier + '%'"></span>
@@ -523,8 +526,8 @@
                                 <input
                                         type="range"
                                         x-model="advanced.pollution.attackCostModifier"
-                                        min="0"
-                                        max="200"
+                                        min="10"
+                                        max="400"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.attackCostModifier + '%'"></span>
@@ -537,7 +540,7 @@
                                         type="range"
                                         x-model="advanced.pollution.minToDamageTrees"
                                         min="0"
-                                        max="200"
+                                        max="9999"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.minToDamageTrees"></span>
@@ -550,7 +553,7 @@
                                         type="range"
                                         x-model="advanced.pollution.absorbedPerDamagedTrees"
                                         min="0"
-                                        max="200"
+                                        max="9999"
                                         class="w-full"
                                 />
                                 <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.absorbedPerDamagedTrees"></span>
@@ -563,10 +566,10 @@
                                         type="range"
                                         x-model="advanced.pollution.diffusionRatio"
                                         min="0"
-                                        max="200"
+                                        max="28"
                                         class="w-full"
                                 />
-                                <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.diffusionRatio"></span>
+                                <span class="text-gray-400 text-[10px]" x-text="advanced.pollution.diffusionRatio + '%'"></span>
                             </div>
                         </div>
                     </div>
